@@ -61,6 +61,16 @@ def create_user():
 
     return jsonify({"message": "Dados inválidas"}), 400
 
+@app.route('/user', methods=["GET"])
+@login_required
+def read_meals():
+    meals = Meal.query.filter_by(id_user=current_user.id).all()
+    
+    if meals:
+        return jsonify(meals)
+
+    return jsonify({"message": "Rota em desenvolvimento"}), 500
+
 ## MEALS METHODS
 @app.route('/meal', methods=["POST"])
 @login_required
@@ -77,6 +87,22 @@ def create_meal():
         return jsonify({"message": "Refeição cadastrada com sucesso"})
 
     return jsonify({"message": "Dados inválidas"}), 400
+
+@app.route('/meal/<int:id_meal>', methods=["PUT"])
+@login_required
+def update_meal(id_meal):
+    return jsonify({"message": "Rota em desenvolvimento"}), 500
+
+@app.route('/meal/<int:id_meal>', methods=["GET"])
+@login_required
+def read_meal(id_meal):
+    return jsonify({"message": "Rota em desenvolvimento"}), 500
+
+@app.route('/meal/<int:id_meal>', methods=["DELETE"])
+@login_required
+def delete_meal(id_meal):
+    return jsonify({"message": "Rota em desenvolvimento"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
