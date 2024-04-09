@@ -1,6 +1,7 @@
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask import Flask, request, jsonify
 from database import db
+import datetime
 import bcrypt
 
 from models.user import User
@@ -15,6 +16,8 @@ db.init_app(app)
 login_manager.init_app(app)
 
 login_manager.login_view = 'login'
+
+## LOGIN AND LOGOUT METHODS
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -41,6 +44,8 @@ def logout():
     logout_user()
     return jsonify({"message": "Logout realizada com sucesso"})
 
+## USER METHODS
+
 @app.route('/user', methods=["POST"])
 def create_user():
     data = request.json
@@ -53,6 +58,23 @@ def create_user():
         db.session.add(user)
         db.session.commit()
         return jsonify({"message": "Usuario cadastrado com sucesso"})
+
+    return jsonify({"message": "Dados inválidas"}), 400
+
+## MEALS METHODS
+@app.route('/meal', methods=["POST"])
+@login_required
+def create_meal():
+    data = request.json
+    name = data.get("name")
+    description = data.get("description")
+    is_diet = data.get("is_diet")
+
+    if name and description and is_diet:
+        meal = Meal(id_user=current_user.id, name=name, description=description, date_time=datetime.datetime.now(), is_diet=bool(is_diet))
+        db.session.add(meal)
+        db.session.commit()
+        return jsonify({"message": "Refeição cadastrada com sucesso"})
 
     return jsonify({"message": "Dados inválidas"}), 400
 
