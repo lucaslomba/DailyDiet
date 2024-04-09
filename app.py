@@ -65,7 +65,6 @@ def create_user():
 @login_required
 def read_meals():
     meals = Meal.query.filter_by(id_user=current_user.id).all()
-    
     if meals:
         return jsonify(meals)
 
@@ -91,6 +90,20 @@ def create_meal():
 @app.route('/meal/<int:id_meal>', methods=["PUT"])
 @login_required
 def update_meal(id_meal):
+    data = request.json
+    meal = Meal.query.get(id_meal)
+
+    if meal:
+        if data.get("name"):
+            meal.name = data.get("name")
+        if data.get("description"):
+            meal.description = data.get("description")
+        if data.get("is_diet"):
+            meal.is_diet = bool(data.get("is_diet"))
+
+        db.session.commit()
+        return jsonify({"message": f"Refeição {meal.name} atualizado com sucesso"})
+
     return jsonify({"message": "Rota em desenvolvimento"}), 500
 
 @app.route('/meal/<int:id_meal>', methods=["GET"])
