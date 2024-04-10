@@ -66,7 +66,17 @@ def create_user():
 def read_meals():
     meals = Meal.query.filter_by(id_user=current_user.id).all()
     if meals:
-        return jsonify(meals)
+        serialized_meals = []
+        for meal in meals:
+            serialized_meals.append({
+                'id': meal.id,
+                'id_user': meal.id_user,
+                'name': meal.name,
+                'description': meal.description,
+                'date_time': meal.date_time.isoformat(), 
+                'is_diet': meal.is_diet
+            })
+        return jsonify(serialized_meals)
 
     return jsonify({"message": "Rota em desenvolvimento"}), 500
 
@@ -109,13 +119,24 @@ def update_meal(id_meal):
 @app.route('/meal/<int:id_meal>', methods=["GET"])
 @login_required
 def read_meal(id_meal):
-    return jsonify({"message": "Rota em desenvolvimento"}), 500
+    meal = Meal.query.get(id_meal)
+
+    if meal:
+        return {"name": meal.name, "description": meal.description, "is_diet": meal.is_diet}
+
+    return jsonify({"message": "Refeição não encontrada"}), 400
 
 @app.route('/meal/<int:id_meal>', methods=["DELETE"])
 @login_required
 def delete_meal(id_meal):
-    return jsonify({"message": "Rota em desenvolvimento"}), 500
+    meal = Meal.query.get(id_meal)
 
+    if meal:
+        db.session.delete(meal)
+        db.session.commit()
+        return jsonify({"message": f"Refeição {meal.name} deletada com sucesso"})
+
+    return jsonify({"message": "Rota em desenvolvimento"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
